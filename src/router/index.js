@@ -11,8 +11,8 @@ export default new Router({
     mainRouter,
     clientRouter,
     {
-      path:'/*',
-      redirect:'/main'
+      path: '/*',
+      redirect: '/main'
     }
   ]
 })

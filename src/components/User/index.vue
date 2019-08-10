@@ -1,12 +1,12 @@
 <template>
   <div>
-    <h1>用户详情</h1>
+    <h1>用户</h1>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Client',
+  name: 'User',
   data() {
     return {};
   }

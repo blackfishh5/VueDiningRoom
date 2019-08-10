@@ -3,11 +3,13 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import MuseUI from 'muse-ui'
+import 'muse-ui/dist/muse-ui.css'
+import axios from 'axios'
 
-import MuseUI from 'muse-ui';
-import 'muse-ui/dist/muse-ui.css';
-Vue.use(MuseUI);
-
+Vue.prototype.axios = axios // 暂时可以这么写
+Vue.use(MuseUI)
+// Vue.component('BScroll', BScroll)
 
 Vue.config.productionTip = false
 
@@ -15,6 +17,8 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: {
+    App
+  },
   template: '<App/>'
 })

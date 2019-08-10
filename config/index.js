@@ -10,7 +10,17 @@ module.exports = {
     // Paths
     assetsSubDirectory: 'static',
     assetsPublicPath: '/',
-    proxyTable: {},
+    proxyTable: {
+      // '/api':{
+      //   target: 'http://39.97.33.178', // 跨域地址
+      //   changeOrigin: true, // 是否跨域
+      //   secure: false, // 是否使用https
+      //   pathRewrith: {
+      //     '^/api': '/api'
+      //     // 这里裂解为使用/api代替target里面的地址'http://39.97.33.178'，后面的组件直接用api代替
+      //   }
+      // }
+    },
 
     // Various Dev Server settings
     host: 'localhost', // can be overwritten by process.env.HOST

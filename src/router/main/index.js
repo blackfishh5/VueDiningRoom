@@ -7,6 +7,10 @@ export default {
       component: () => import('@/components/Window')
     },
     {
+      path: 'user',
+      component: () => import('@/components/User')
+    },
+    {
       path: '/main',
       redirect: '/main/window'
     }
