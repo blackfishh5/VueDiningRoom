@@ -1,5 +1,5 @@
 <template>
-  <mu-container class="container" ref="container">
+  <mu-container id="container" class="container" ref="container">
     <mu-card style="width: 100%; max-width: 375px; margin: 0 auto;" :raised="false">
       <mu-card-header title="Myron Avatar" sub-title="sub title">
         <mu-avatar slot="avatar">
@@ -30,54 +30,35 @@
           </mu-list>
         </mu-paper>
         <mu-paper :z-depth="6" class="right-list" ref="rightwrapper">
-          <mu-list textline="two-line">
+          <mu-list textline="two-line" >
             <mu-list-item class="list-item" v-for="(book,index) in menu" :key="index">
-              <mu-list-item-action class="img-item">
+              <mu-list-item-action class="img-item"  @touchstart="handleToFoodDetail(book.bookname)">
                 <img :src="book.book_cover">
               </mu-list-item-action>
               <mu-list-item-title>{{book.bookname | filterName}}</mu-list-item-title>
               <mu-list-item-action>
-                <span class="money">￥ 7.0</span>
+                <span class="money">￥ {{book.price | filterPrice}}</span>
               </mu-list-item-action>
               <mu-list-item-action>
                 <mu-button icon color="primary">+</mu-button>
               </mu-list-item-action>
             </mu-list-item>
-            <mu-list-item class="list-item" v-for="(book,index) in menu" :key="index">
-              <mu-list-item-action class="img-item">
-                <img :src="book.book_cover">
-              </mu-list-item-action>
-              <mu-list-item-title>{{book.bookname | filterName}}</mu-list-item-title>
-              <mu-list-item-action>
-                <span class="money">￥ 7.0</span>
-              </mu-list-item-action>
-              <mu-list-item-action>
-                <mu-button icon color="primary">+</mu-button>
-              </mu-list-item-action>
-            </mu-list-item>
-            <mu-list-item class="list-item" v-for="(book,index) in menu" :key="index">
-              <mu-list-item-action class="img-item">
-                <img :src="book.book_cover">
-              </mu-list-item-action>
-              <mu-list-item-title>{{book.bookname | filterName}}</mu-list-item-title>
-              <mu-list-item-action>
-                <span class="money">￥ 7.0</span>
-              </mu-list-item-action>
-              <mu-list-item-action>
-                <mu-button icon color="primary">+</mu-button>
-              </mu-list-item-action>
-            </mu-list-item>
+
           </mu-list>
         </mu-paper>
       </div>
     </mu-card>
+    <Shopcar></Shopcar>
   </mu-container>
+
 </template>
 <script>
 import BScroll from "better-scroll";
+import Shopcar from "@/components/Shopcar";
 
 export default {
   name: "Window",
+  components: { Shopcar },
   data() {
     return {
       menu: [],
@@ -88,6 +69,10 @@ export default {
   filters: {
     filterName(val) {
       return val.slice(0, 6);
+    },
+    filterPrice(val) {
+      val = parseFloat(val);
+      return val.toFixed(2);
     }
   },
   created() {
@@ -117,13 +102,13 @@ export default {
       // preventDefault:false
     });
 
-    this.handleScroll()
+    this.handleScroll();
     // this.listTitle = document.querySelectorAll('list-title')
   },
   methods: {
     handleScroll() {
       this.contScroll.on("scroll", pos => {
-        console.log("container1111111111111111111111" + pos.y);
+        // console.log("container1111111111111111111111" + pos.y);
         if ((pos.y <= -290 && !this.flag) || (pos.y <= -380 && !this.flag)) {
           this.contScroll.disable();
           this.contScroll.scrollTo(0, -380);
@@ -135,9 +120,6 @@ export default {
         this.flag = false;
         this.leftScroll.enable();
         this.rightScroll.enable();
-      });
-      this.leftScroll.on("scroll", pos => {
-        console.log("leftScroll" + pos);
       });
       this.rightScroll.on("scroll", pos => {
         if (pos.y < -5) {
@@ -158,19 +140,26 @@ export default {
       });
       this.rightScroll.on("touchEnd", pos => {
         if (pos.y >= 0) {
-          console.log("flag" + this.flag);
+          // console.log("flag" + this.flag);
           this.flag = true;
         }
       });
+    },
+
+    handleToFoodDetail(name){
+      console.log(12332112312)
+      this.$router.push(`/food/detail/${name}`)
     }
   }
 };
 </script>
 
 <style scoped>
-.container {
-  padding: 0;
+#container {
+  width: 100%;
   height: 563px;
+  margin: 56px auto;
+  padding: 0;
 }
 
 img {

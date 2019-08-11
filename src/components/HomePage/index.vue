@@ -1,14 +1,22 @@
+
 <template>
   <div id="container">
-    <h1>用户</h1>
+    <h1>首页</h1>
+    <button @touchstart="handleToFood">123</button>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'User',
+  name: 'HomePage',
   data() {
     return {};
+  },
+  methods:{
+    handleToFood(){
+      console.log(123)
+      this.$router.push('/food')
+    }
   }
 };
 </script>

@@ -1,8 +1,8 @@
 <template>
   <mu-container class="tabbar">
     <mu-bottom-nav class="tabbar-nav">
-      <mu-bottom-nav-item title="Recents" icon="restore" to="/"></mu-bottom-nav-item>
-      <mu-bottom-nav-item title="Favorites" icon="favorite" to="/main/window"></mu-bottom-nav-item>
+      <mu-bottom-nav-item title="Recents" icon="restore" to="/main"></mu-bottom-nav-item>
+      <mu-bottom-nav-item title="Favorites" icon="favorite" to="/main/order"></mu-bottom-nav-item>
       <mu-bottom-nav-item title="Nearby" icon="location_on" to="/main/user"></mu-bottom-nav-item>
     </mu-bottom-nav>
   </mu-container>

@@ -1,10 +1,13 @@
 export default {
   path: '/main',
   component: () => import('@/View/Main'),
-  children: [
+  children: [{
+      path: '',
+      component: () => import('@/components/HomePage')
+    },
     {
-      path: 'window',
-      component: () => import('@/components/Window')
+      path: 'order',
+      component: () => import('@/components/Order')
     },
     {
       path: 'user',
@@ -12,7 +15,7 @@ export default {
     },
     {
       path: '/main',
-      redirect: '/main/window'
+      redirect: '/main'
     }
   ]
 }
