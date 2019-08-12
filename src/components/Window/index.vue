@@ -30,17 +30,19 @@
           </mu-list>
         </mu-paper>
         <mu-paper :z-depth="6" class="right-list" ref="rightwrapper">
-          <mu-list textline="two-line" >
+          <mu-list textline="two-line">
             <mu-list-item class="list-item" v-for="(book,index) in menu" :key="index">
-              <mu-list-item-action class="img-item"  @touchstart="handleToFoodDetail(book.bookname)">
+              <mu-list-item-action class="img-item" @touchstart="handleToFoodDetail(book.bookname)">
                 <img :src="book.book_cover">
               </mu-list-item-action>
-              <mu-list-item-title>{{book.bookname | filterName}}</mu-list-item-title>
-              <mu-list-item-action>
-                <span class="money">￥ {{book.price | filterPrice}}</span>
-              </mu-list-item-action>
-              <mu-list-item-action>
-                <mu-button icon color="primary">+</mu-button>
+              <div style="line-height:28px;">
+                <p>{{book.bookname | filterName}}</p>
+                <p class="money">￥ {{book.price | filterPrice}}</p>
+              </div>
+              <mu-list-item-action class="item">
+                <mu-icon value="remove" color="red" @touchstart="handleToSubtract(index)"></mu-icon>
+                <span class="number-show">{{$store.state.buyfood.fn[index]}}</span>
+                <mu-icon value="add" color="blue" @touchstart="handleToAdd(index)"></mu-icon>
               </mu-list-item-action>
             </mu-list-item>
 
@@ -63,7 +65,9 @@ export default {
     return {
       menu: [],
       flag: false, // 用于滑动解锁 和 加锁
-      listTitle: []
+      listTitle: [],
+      foodNum:[],  // 预定个数
+      showNum:[]  // 展示预定个数
     };
   },
   filters: {
@@ -73,13 +77,29 @@ export default {
     filterPrice(val) {
       val = parseFloat(val);
       return val.toFixed(2);
+    },
+    filterNumber(val){
+      // console.log('val'+val)
+      if(val === undefined){
+        return 0
+      }else{
+        return val
+      }
     }
   },
   created() {
     this.axios.get("https://www.apiopen.top/novelApi").then(res => {
       if (res.data.code === 200) {
         this.menu = res.data.data;
-        console.log(this.menu);
+        for(let i = 0;i<this.menu.length;i++){
+          this.foodNum[i] = 0;
+        }
+        // console.log(this.menu);
+        this.$store.commit('buyfood/SET_MENU',{mn:this.menu})
+        this.$store.commit('buyfood/SET_FOODNUM',{fn: this.foodNum})
+        window.localStorage.setItem('mn',JSON.stringify(this.menu))
+        window.localStorage.setItem('fn',JSON.stringify(this.foodNum))
+        console.log(this.$store.state.buyfood.mn);
       }
     });
   },
@@ -104,6 +124,16 @@ export default {
 
     this.handleScroll();
     // this.listTitle = document.querySelectorAll('list-title')
+  },
+  watch:{
+    foodNum(){
+      var total = 0;
+      for(let i = 0;i<this.foodNum.length;i++){
+        total += this.foodNum[i]*this.menu[i].price
+      }
+      this.$store.commit('buyfood/SET_PRICE',{tp:total})
+      window.localStorage.setItem('tp',total)
+    }
   },
   methods: {
     handleScroll() {
@@ -147,8 +177,30 @@ export default {
     },
 
     handleToFoodDetail(name){
-      console.log(12332112312)
+      // console.log(12332112312)
       this.$router.push(`/food/detail/${name}`)
+    },
+
+    handleToAdd(index){
+      // console.log('add'+index) 
+      var num = this.foodNum[index]
+      if(num >= 9){
+        num = 8
+      }
+      this.foodNum.splice(index, 1, num+1);
+      this.$store.commit('buyfood/SET_FOODNUM',{fn: this.foodNum})
+      window.localStorage.setItem('fn',JSON.stringify(this.foodNum))
+      
+    },
+    handleToSubtract(index){
+      // console.log('subtract'+index)
+      var num = this.foodNum[index]
+      if(num <= 0){
+        num = 1
+      }
+      this.foodNum.splice(index, 1, num-1);
+      this.$store.commit('buyfood/SET_FOODNUM',{fn:this.foodNum})
+      window.localStorage.setItem('fn',JSON.stringify(this.foodNum))
     }
   }
 };
@@ -191,9 +243,31 @@ img {
 .money {
   color: rgb(196, 145, 51);
 }
-
+.item {
+  position: absolute;
+  right: 10px;
+  height: 28px;
+  text-align: right;
+  flex-direction: row;
+  padding: 0;
+}
+.btn {
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  color: blue;
+  margin-left: 10px;
+  margin-right: 10px;
+  border: 1px solid blue;
+  border-radius: 50%;
+}
 .isActive {
   color: red;
+}
+.number-show {
+  font-size: 14px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 </style>
 

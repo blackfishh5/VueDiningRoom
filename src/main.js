@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './stores'
 import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 import axios from 'axios'
@@ -16,6 +17,7 @@ Vue.config.productionTip = false
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
+  store,
   router,
   components: {
     App
