@@ -79,7 +79,7 @@ export default {
       if (!val) {
         return 0.0;
       } else {
-        return val.toFixed(1);
+        return val
       }
     }
   },
@@ -108,7 +108,8 @@ export default {
           accMn: newMenu,
           accFn: newFoodNum
         });
-
+        window.localStorage.setItem('accMn',JSON.stringify(newMenu))
+        window.localStorage.setItem('accFn',JSON.stringify(newFoodNum))
         this.$router.push("/food/purchase");
       });
 

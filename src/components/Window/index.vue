@@ -37,7 +37,7 @@
               </mu-list-item-action>
               <div style="line-height:28px;">
                 <p>{{book.bookname | filterName}}</p>
-                <p class="money">￥ {{book.price | filterPrice}}</p>
+                <p class="money">￥ {{book.price}}</p>
               </div>
               <mu-list-item-action class="item">
                 <mu-icon value="remove" color="red" @touchstart="handleToSubtract(index)"></mu-icon>
@@ -73,10 +73,6 @@ export default {
   filters: {
     filterName(val) {
       return val.slice(0, 6);
-    },
-    filterPrice(val) {
-      val = parseFloat(val);
-      return val.toFixed(2);
     },
     filterNumber(val){
       // console.log('val'+val)
@@ -182,7 +178,7 @@ export default {
     },
 
     handleToAdd(index){
-      // console.log('add'+index) 
+      // console.log('add'+index)
       var num = this.foodNum[index]
       if(num >= 9){
         num = 8
@@ -190,7 +186,7 @@ export default {
       this.foodNum.splice(index, 1, num+1);
       this.$store.commit('buyfood/SET_FOODNUM',{fn: this.foodNum})
       window.localStorage.setItem('fn',JSON.stringify(this.foodNum))
-      
+
     },
     handleToSubtract(index){
       // console.log('subtract'+index)

@@ -3,8 +3,8 @@ const state = {
   mn: JSON.parse(window.localStorage.getItem('mn')) || [],
   fn: JSON.parse(window.localStorage.getItem('fn')) || [],
 
-  accMn: [],
-  accFn: []
+  accMn: JSON.parse(window.localStorage.getItem('accMn')) || [],
+  accFn: JSON.parse(window.localStorage.getItem('accFn')) || []
 };
 const actions = {
 
