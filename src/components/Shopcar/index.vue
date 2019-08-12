@@ -1,5 +1,34 @@
 <template>
   <mu-container class="shopcar">
+    <mu-flex class="mu-transition-row">
+      <mu-fade-transition>
+        <div class="black-div" v-show="open"></div>
+      </mu-fade-transition>
+    </mu-flex>
+    <mu-flex class="mu-transition-row">
+      <mu-expand-transition>
+        <mu-paper :z-depth="1" class="demo-list-wrap" v-show="open">
+          <mu-appbar color="#fff">
+            <span style="color:#000;">已选商品</span>
+            <mu-button flat slot="right" color="#000" @touchstart="handleToClear">
+              清空
+              <mu-icon right value="delete"></mu-icon>
+            </mu-button>
+          </mu-appbar>
+          <mu-list class="list">
+            <mu-list-item v-for="(food,index) in $store.state.buyfood.mn" :key="index" v-if="foodNum[index]">
+              <mu-list-item-title>{{food.bookname}}</mu-list-item-title>
+              <mu-list-item-action class="item">
+                <span>￥{{food.price*foodNum[index] | filterPrice}}</span>
+                <mu-icon value="remove" color="red" @touchstart="handleToSubtract(index)"></mu-icon>
+                <span class="num">{{foodNum[index]}}</span>
+                <mu-icon value="add" color="blue" @touchstart="handleToAdd(index)"></mu-icon>
+              </mu-list-item-action>
+            </mu-list-item>
+          </mu-list>
+        </mu-paper>
+      </mu-expand-transition>
+    </mu-flex>
     <mu-appbar style="width: 100%;">
       <mu-button icon slot="left" @touchstart="handleOpenList">
         <mu-icon value="menu"></mu-icon>
@@ -7,37 +36,6 @@
       <span>￥ {{$store.state.buyfood.tp}} </span>
       <mu-button flat slot="right" @touchstart="handleToPurchase">去结算</mu-button>
     </mu-appbar>
-    <mu-expand-transition>
-      <mu-bottom-sheet class="sheet" :open.sync="open" :overlay-opacity="0.1">
-        <mu-list>
-          <mu-sub-header>
-            <mu-list>
-              <mu-list-item>
-                <mu-list-item-content>
-                  <mu-list-item-title>已选商品</mu-list-item-title>
-                </mu-list-item-content>
-                <mu-list-item-action>
-                  <mu-button flat @touchstart="handleToClear">
-                    清空
-                    <mu-icon right value="delete"></mu-icon>
-                  </mu-button>
-                </mu-list-item-action>
-              </mu-list-item>
-            </mu-list>
-          </mu-sub-header>
-
-          <mu-list-item v-for="(food,index) in $store.state.buyfood.mn" :key="index" v-if="foodNum[index]">
-            <mu-list-item-title>{{food.bookname}}</mu-list-item-title>
-            <mu-list-item-action class="item">
-              <span>￥{{food.price*foodNum[index] | filterPrice}}</span>
-              <mu-icon value="remove" color="red" @touchstart="handleToSubtract(index)"></mu-icon>
-              <span class="num">{{foodNum[index]}}</span>
-              <mu-icon value="add" color="blue" @touchstart="handleToAdd(index)"></mu-icon>
-            </mu-list-item-action>
-          </mu-list-item>
-        </mu-list>
-      </mu-bottom-sheet>
-    </mu-expand-transition>
   </mu-container>
 </template>
 
@@ -49,6 +47,14 @@ export default {
       open: false
     };
   },
+  mounted() {
+    var that = this; //this的指向问题
+    document.addEventListener("touchstart", function(e) {
+      if (e.target.className === "black-div") {
+        that.open = false; //这里that代表组件，this代表document
+      }
+    });
+  },
   watch: {
     foodNum() {
       var total = 0;
@@ -59,13 +65,12 @@ export default {
       window.localStorage.setItem("tp", total);
     }
   },
-  computed:{
-
-    menu(){
-      return this.$store.state.buyfood.mn
+  computed: {
+    menu() {
+      return this.$store.state.buyfood.mn;
     },
-    foodNum(){
-      return this.$store.state.buyfood.fn
+    foodNum() {
+      return this.$store.state.buyfood.fn;
     }
   },
   filters: {
@@ -80,27 +85,45 @@ export default {
   },
   methods: {
     handleOpenList() {
-      this.open = true;
+      console.log(this.open);
+      this.open = !this.open;
     },
     handleToPurchase() {
-      this.$router.push("/food/purchase");
+      let newMenu = [];
+      let newFoodNum = [];
+      newMenu = this.menu.filter((item, index) => {
+        if (this.foodNum[index] > 0) {
+          return item;
+        }
+      });
+      newFoodNum = this.foodNum.filter((item, index) => {
+        if (this.foodNum[index] > 0) {
+          return item;
+        }
+      });
+      console.log(newMenu)
+      console.log(newFoodNum)
+      this.$nextTick(() => {
+        this.$store.commit("buyfood/SET_BUTFOOD", {
+          accMn: newMenu,
+          accFn: newFoodNum
+        });
+
+        this.$router.push("/food/purchase");
+      });
+
     },
     handleToAdd(index) {
-      // console.log('add'+index)
       var num = this.foodNum[index];
       if (num >= 9) {
         num = 8;
       }
-      // this.foodNum.splice(index, 1, num + 1);
-      // this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
-     
-      console.log(index)
       this.foodNum.splice(index, 1, num + 1);
-      this.$nextTick(()=>{
-        this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum })
+      this.$nextTick(() => {
+        this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
         window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
-      })
-      
+      });
+
       // console.log(this.foodNum)
     },
     handleToSubtract(index) {
@@ -111,19 +134,19 @@ export default {
       }
       // this.foodNum.splice(index, 1, num - 1);
       // this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
-      
-      console.log(index)
+
+      console.log(index);
       this.foodNum.splice(index, 1, num - 1);
-      this.$nextTick(()=>{
-        this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum })
+      this.$nextTick(() => {
+        this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
         window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
-      })
+      });
     },
-    handleToClear(){
-      for(let i = 0;i<this.foodNum.length;i++){
+    handleToClear() {
+      for (let i = 0; i < this.foodNum.length; i++) {
         this.foodNum.splice(i, 1, 0);
       }
-      this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum});
+      this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
       this.$store.commit("buyfood/SET_PRICE", { tp: 0 });
       window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
       window.localStorage.setItem("tp", 0);
@@ -160,5 +183,21 @@ span.num {
 .item {
   flex: 1;
   flex-direction: row;
+}
+
+.demo-list-wrap {
+  border-top: 1px solid #000;
+  width: 100%;
+}
+.list {
+  padding: 0;
+}
+.mu-transition-row {
+  width: 100%;
+}
+.black-div {
+  background: rgba(0, 0, 0, 0.2);
+  width: 100%;
+  height: 700px;
 }
 </style>

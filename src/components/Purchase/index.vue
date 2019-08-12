@@ -1,7 +1,7 @@
 <template>
   <div id="container">
     <mu-card style="width: 100%; max-width: 375px; margin: 0 auto;">
-      <mu-card-title title="确认订单（预计16:00到达）" sub-title="hxh 15851862303"></mu-card-title>
+      <mu-card-title title="确认订单" sub-title="hxh 15851862303"></mu-card-title>
     </mu-card>
     <mu-card style="width: 100%; max-width: 375px; margin: 0 auto;">
       <mu-card-header title="梅园1-4" sub-title="梅3b120">
@@ -13,141 +13,22 @@
     <mu-paper :z-depth="1" class="demo-list-wrap">
       <mu-list>
         <mu-sub-header>Today</mu-sub-header>
-        <mu-list-item avatar button :ripple="false">
+        <mu-list-item avatar button :ripple="false" v-for="(food,index) in menu" :key="index">
           <mu-list-item-action>
             <mu-avatar>
-              <img src="../../assets/grass.jpg">
+              <img :src="food.book_cover">
             </mu-avatar>
           </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
+          <mu-list-item-title>{{food.bookname |  filterName}}</mu-list-item-title>
+          <mu-list-item-title style="text-align:center;">×{{foodNum[index]}}</mu-list-item-title>
           <mu-list-item-action>
-            <span>￥10.00</span>
+            <span>￥{{foodNum[index]*food.price}}</span>
           </mu-list-item-action>
         </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
-        <mu-list-item avatar button :ripple="false">
-          <mu-list-item-action>
-            <mu-avatar>
-              <img src="../../assets/grass.jpg">
-            </mu-avatar>
-          </mu-list-item-action>
-          <mu-list-item-title>菜名</mu-list-item-title>
-          <mu-list-item-title>×1</mu-list-item-title>
-          <mu-list-item-action>
-            <span>￥10.00</span>
-          </mu-list-item-action>
-        </mu-list-item>
+
       </mu-list>
     </mu-paper>
-    <PurchaseBar></PurchaseBar>
+    <PurchaseBar :price="$store.state.buyfood.tp"></PurchaseBar>
   </div>
 </template>
 
@@ -159,6 +40,19 @@ export default {
   components:{PurchaseBar},
   data() {
     return {};
+  },
+  filters:{
+     filterName(val) {
+      return val.slice(0, 6);
+    }
+  },
+  computed:{
+    foodNum() {
+      return this.$store.state.buyfood.accFn
+    },
+    menu() {
+      return this.$store.state.buyfood.accMn
+    }
   }
 };
 </script>
@@ -171,7 +65,6 @@ export default {
   height: 563px;
   margin: 56px auto;
   padding: 0;
-  
 }
 
 span {

@@ -1,7 +1,7 @@
 
 <template>
   <mu-appbar class="pur-bar" style="width: 100%;">
-    <span>￥ 10.00 </span>
+    <span>￥ {{price}} </span>
     <mu-button flat slot="right">支付</mu-button>
   </mu-appbar>
 </template>
@@ -9,6 +9,7 @@
 <script>
 export default {
   name: "PurchaseBar",
+  props:['price'],
   data() {
     return {};
   }
