@@ -8,6 +8,7 @@ import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 import axios from 'axios'
 
+axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 Vue.prototype.axios = axios // 暂时可以这么写
 Vue.use(MuseUI)
 // Vue.component('BScroll', BScroll)
