@@ -3,15 +3,17 @@ import Router from 'vue-router'
 // import HelloWorld from '@/View/Main'
 
 import mainRouter from './main'
+import orderRouter from './order'
+import userRouter from './user'
 import foodRouter from './food'
-import clientRouter from './client'
 Vue.use(Router)
 
 export default new Router({
   routes: [
     mainRouter,
+    orderRouter,
+    userRouter,
     foodRouter,
-    clientRouter,
     {
       path: '/*',
       redirect: '/main'

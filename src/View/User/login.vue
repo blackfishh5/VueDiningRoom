@@ -1,11 +1,8 @@
 <template>
-
   <mu-container id="container">
-    <mu-card style="width: 95%; max-width: 375px; margin: 0 auto;" raised>
-      <mu-card-header title="Myron Avatar" sub-title="sub title">
-        <mu-avatar slot="avatar">
-          <img src="../../assets/grass.jpg">
-        </mu-avatar>
+    <mu-card style="width: 97%; max-width: 375px; margin: 0 auto;" raised>
+      <mu-card-header>
+        <h2>登陆界面</h2>
       </mu-card-header>
       <mu-form :model="form" ref="form" class="mu-demo-form" :label-position="labelPosition" label-width="100">
         <mu-form-item prop="username" label="username">
@@ -48,7 +45,8 @@ export default {
         })
         .then((res) => {
           if (res.data.state === 0) {
-            console.log(res.data.msg);
+            // console.log(res.data.msg);
+            this.$router.push('/user/detail')
           }
         });
     },
