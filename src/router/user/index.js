@@ -5,7 +5,8 @@ export default {
     path:'detail',
     component: () => import('@/View/User/detail')
   },{
-    path:'login',
+    path:'login/:type',
+    name: 'loginPage',
     component: () => import('@/View/User/login')
   },{
     path:'/user',

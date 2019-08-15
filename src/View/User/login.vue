@@ -46,7 +46,17 @@ export default {
         .then((res) => {
           if (res.data.state === 0) {
             // console.log(res.data.msg);
-            this.$router.push('/user/detail')
+            var flag = this.$route.params.type
+            if (flag === 1){
+              // 如果是去结算页面跳过来登录的，必须回到订单
+              this.$router.push('/food')
+            }
+            else if(flag === 2){
+              this.$router.push('/food/purchase')
+            } else {
+              this.$router.push('/user/detail')
+            }
+           
           }
         });
     },

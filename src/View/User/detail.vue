@@ -55,20 +55,6 @@
         <p>“我不需要你的帮忙！未来我会一手开启，什么样的敌人我也不会惧怕……还有，其实我们可以成为朋友的……”</p>
         <p>“也许吧，未来……给你了。”</p>
       </div>
-      <!-- <mu-card-media title="Image Title" sub-title="Image Sub Title">
-    <img src="../../assets/images/sun.jpg">
-  </mu-card-media> -->
-      <!-- <mu-card-title title="Content Title" sub-title="Content Title"></mu-card-title>
-      <mu-card-text>
-        散落在指尖的阳光，我试着轻轻抓住光影的踪迹，它却在眉宇间投下一片淡淡的阴影。
-        调皮的阳光掀动了四月的心帘，温暖如约的歌声渐起。
-        似乎在诉说着，我也可以在漆黑的角落里，找到阴影背后的阳光，
-        找到阳光与阴影奏出和谐的旋律。我要用一颗敏感赤诚的心迎接每一缕滑过指尖的阳光！
-      </mu-card-text>
-      <mu-card-actions>
-        <mu-button flat>Action 1</mu-button>
-        <mu-button flat>Action 2</mu-button>
-      </mu-card-actions> -->
     </mu-card>
   </mu-container>
 </template>
@@ -129,13 +115,19 @@ export default {
       var state = res.data.state;
       console.log(state);
       if (state === 0) {
+        var data = res.data.data
         next(vm => {
-          vm.username = res.data.data.username;
-          vm.realname = res.data.data.realname;
-          vm.money = res.data.data.money;
+          vm.username = data.username;
+          vm.realname = data.realname;
+          vm.money = data.money
+          // vm.$store.commit('user/SET_USER',{
+          //   username:data.username,
+          //   realname:data.realname,
+          //   money:data.money
+          // })
         });
       } else {
-        next("/user/login");
+        next({name:'loginPage',params:{ type: 0}});
       }
     });
   }

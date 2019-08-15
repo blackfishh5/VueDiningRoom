@@ -1,10 +1,11 @@
 <template>
   <div id="container">
     <mu-card style="width: 100%; max-width: 375px; margin: 0 auto;">
-      <mu-card-title title="确认订单" sub-title="hxh 15851862303"></mu-card-title>
+      <mu-card-title :title=" '请 '+realname+' 确认订单' " :sub-title=" '余额: ' + money"></mu-card-title>
     </mu-card>
     <mu-card style="width: 100%; max-width: 375px; margin: 0 auto;">
       <mu-card-header title="梅园1-4" sub-title="梅3b120">
+
         <mu-avatar slot="avatar">
           <mu-icon size="49" value="home"></mu-icon>
         </mu-avatar>
@@ -28,30 +29,50 @@
 
       </mu-list>
     </mu-paper>
-    <PurchaseBar :price="$store.state.buyfood.tp"></PurchaseBar>
+    <PurchaseBar :price="$store.state.buyfood.tp" :username="username" @changeMoney="updateMoney"></PurchaseBar>
   </div>
 </template>
 
 <script>
-import PurchaseBar from '@/components/PurchaseBar'
+import PurchaseBar from "@/components/PurchaseBar";
 
 export default {
   name: "Purchase",
-  components:{PurchaseBar},
+  components: { PurchaseBar },
   data() {
-    return {};
+    return {
+      realname: "",
+      money: 0,
+      username: ""
+    };
   },
-  filters:{
-     filterName(val) {
+  created() {
+    this.axios.get("/api2/users/getuser").then(res => {
+      if (res.data.state === 0) {
+        console.log(res.data.data);
+        var data = res.data && res.data.data;
+        this.realname = data.realname;
+        this.username = data.username;
+        this.money = data.money;
+      }
+    });
+  },
+  filters: {
+    filterName(val) {
       return val.slice(0, 6);
     }
   },
-  computed:{
+  computed: {
     foodNum() {
-      return this.$store.state.buyfood.accFn
+      return this.$store.state.buyfood.accFn;
     },
     menu() {
-      return this.$store.state.buyfood.accMn
+      return this.$store.state.buyfood.accMn;
+    }
+  },
+  methods:{
+    updateMoney(newMoney){
+      this.money = newMoney
     }
   }
 };

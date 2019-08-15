@@ -1,11 +1,18 @@
 <template>
   <mu-container id="container" class="container" ref="container">
     <mu-card style="width: 100%; max-width: 375px; margin: 0 auto;" :raised="false">
-      <mu-card-header title="Myron Avatar" sub-title="sub title">
-        <mu-avatar slot="avatar">
-          <!-- <img src="../../assets/images/uicon.jpg"> -->
-        </mu-avatar>
-      </mu-card-header>
+      <header class="user-header">
+        <div class="user-avator">
+          <img src="../../assets/grass.jpg" alt="">
+        </div>
+        <div class="user-name">
+          <div>{{realname | filterUserName}}</div>
+          <p>￥ {{money}}</p>
+        </div>
+        <div v-if="!isLogin" class="user-logout">
+          <mu-button color="red" @touchstart="handleToLogin" :ripple="false">去登陆</mu-button>
+        </div>
+      </header>
       <mu-card-media title="Image Title" sub-title="Image Sub Title">
         <img src="../../assets/temp.jpg">
       </mu-card-media>
@@ -36,7 +43,7 @@
                 <img :src="book.book_cover">
               </mu-list-item-action>
               <div style="line-height:28px;">
-                <p>{{book.bookname | filterName}}</p>
+                <p>{{book.bookname | filterFoodName}}</p>
                 <p class="money">￥ {{book.price}}</p>
               </div>
               <mu-list-item-action class="item">
@@ -50,7 +57,7 @@
         </mu-paper>
       </div>
     </mu-card>
-    <Shopcar></Shopcar>
+    <Shopcar :username="username"></Shopcar>
   </mu-container>
 
 </template>
@@ -63,23 +70,34 @@ export default {
   components: { Shopcar },
   data() {
     return {
+      isLogin: false,
+      realname: "",
+      username: "",
+      money: 0,
+
       menu: [],
       flag: false, // 用于滑动解锁 和 加锁
       listTitle: [],
-      foodNum:[],  // 预定个数
-      showNum:[]  // 展示预定个数
+      foodNum: [], // 预定个数
+      showNum: [] // 展示预定个数
     };
   },
   filters: {
-    filterName(val) {
+    filterUserName(val) {
+      if (!val) {
+        return "未登录";
+      }
+      return val;
+    },
+    filterFoodName(val) {
       return val.slice(0, 6);
     },
-    filterNumber(val){
+    filterNumber(val) {
       // console.log('val'+val)
-      if(val === undefined){
-        return 0
-      }else{
-        return val
+      if (val === undefined) {
+        return 0;
+      } else {
+        return val;
       }
     }
   },
@@ -87,15 +105,33 @@ export default {
     this.axios.get("https://www.apiopen.top/novelApi").then(res => {
       if (res.data.code === 200) {
         this.menu = res.data.data;
-        for(let i = 0;i<this.menu.length;i++){
-          this.foodNum[i] = 0;
+
+        var foodNum = JSON.parse(window.localStorage.getItem("fn"));
+        var totalPrice = window.localStorage.getItem("tp");
+        if (totalPrice) {
+          this.foodNum = foodNum;
+        } else {
+          for (let i = 0; i < this.menu.length; i++) {
+            this.foodNum[i] = 0;
+          }
         }
         // console.log(this.menu);
-        this.$store.commit('buyfood/SET_MENU',{mn:this.menu})
-        this.$store.commit('buyfood/SET_FOODNUM',{fn: this.foodNum})
-        window.localStorage.setItem('mn',JSON.stringify(this.menu))
-        window.localStorage.setItem('fn',JSON.stringify(this.foodNum))
+        this.$store.commit("buyfood/SET_MENU", { mn: this.menu });
+        this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
+        window.localStorage.setItem("mn", JSON.stringify(this.menu));
+        window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
         console.log(this.$store.state.buyfood.mn);
+      }
+    });
+
+    this.axios.get("/api2/users/getuser").then(res => {
+      if (res.data.state === 0) {
+        console.log(res.data.data);
+        var data = res.data && res.data.data;
+        this.isLogin = true;
+        this.realname = data.realname;
+        this.username = data.username;
+        this.money = data.money;
       }
     });
   },
@@ -121,17 +157,27 @@ export default {
     this.handleScroll();
     // this.listTitle = document.querySelectorAll('list-title')
   },
-  watch:{
-    foodNum(){
+  watch: {
+    foodNum() {
       var total = 0;
-      for(let i = 0;i<this.foodNum.length;i++){
-        total += this.foodNum[i]*this.menu[i].price
+      for (let i = 0; i < this.foodNum.length; i++) {
+        total += this.foodNum[i] * this.menu[i].price;
       }
-      this.$store.commit('buyfood/SET_PRICE',{tp:total})
-      window.localStorage.setItem('tp',total)
+      this.$store.commit("buyfood/SET_PRICE", { tp: total });
+      window.localStorage.setItem("tp", total);
     }
   },
   methods: {
+    /**
+     * 用户处理函数
+     */
+    handleToLogin() {
+      this.$router.push({ name: "loginPage", params: { type: 1 } });
+    },
+
+    /**
+     * 选购处理函数
+     */
     handleScroll() {
       this.contScroll.on("scroll", pos => {
         // console.log("container1111111111111111111111" + pos.y);
@@ -172,31 +218,30 @@ export default {
       });
     },
 
-    handleToFoodDetail(name){
+    handleToFoodDetail(name) {
       // console.log(12332112312)
-      this.$router.push(`/food/detail/${name}`)
+      this.$router.push(`/food/detail/${name}`);
     },
 
-    handleToAdd(index){
+    handleToAdd(index) {
       // console.log('add'+index)
-      var num = this.foodNum[index]
-      if(num >= 9){
-        num = 8
+      var num = this.foodNum[index];
+      if (num >= 9) {
+        num = 8;
       }
-      this.foodNum.splice(index, 1, num+1);
-      this.$store.commit('buyfood/SET_FOODNUM',{fn: this.foodNum})
-      window.localStorage.setItem('fn',JSON.stringify(this.foodNum))
-
+      this.foodNum.splice(index, 1, num + 1);
+      this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
+      window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
     },
-    handleToSubtract(index){
+    handleToSubtract(index) {
       // console.log('subtract'+index)
-      var num = this.foodNum[index]
-      if(num <= 0){
-        num = 1
+      var num = this.foodNum[index];
+      if (num <= 0) {
+        num = 1;
       }
-      this.foodNum.splice(index, 1, num-1);
-      this.$store.commit('buyfood/SET_FOODNUM',{fn:this.foodNum})
-      window.localStorage.setItem('fn',JSON.stringify(this.foodNum))
+      this.foodNum.splice(index, 1, num - 1);
+      this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
+      window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
     }
   }
 };
@@ -210,6 +255,39 @@ export default {
   padding: 0;
 }
 
+/* 用户信息头部 */
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 20px;
+}
+.user-header .user-avator {
+  width: 50px;
+  height: 50px;
+  margin-right: 15px;
+}
+.user-header .user-avator img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+}
+.user-header .user-name {
+  flex: 1;
+  font-family: Arial, Helvetica, sans-serif;
+}
+.user-header .user-name div {
+  font-size: 20px;
+}
+.user-header .user-name p {
+  font-size: 13 px;
+  color: brown;
+}
+.user-header .user-login {
+  line-height: 50px;
+}
+
+/* 各种菜 */
 img {
   width: 100%;
   height: 100%;
