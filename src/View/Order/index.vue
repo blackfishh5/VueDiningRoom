@@ -2,8 +2,8 @@
   <div>
     <Header title="订单详情" :isMain="true"></Header>
     <div>
-      <!-- <router-view></router-view> -->
-      <h2 id="container">订单详情</h2>
+      <router-view></router-view>
+      <!-- <h2 id="container">订单详情</h2> -->
     </div>
     <TabBar></TabBar>
   </div>

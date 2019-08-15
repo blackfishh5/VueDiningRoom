@@ -155,7 +155,6 @@ export default {
   width: 100%;
   padding: 20px;
 }
-
 .user-header .user-avator {
   width: 50px;
   height: 50px;
