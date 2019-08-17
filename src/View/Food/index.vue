@@ -22,7 +22,12 @@ export default {
   },
   methods:{
     handleBack(){
-      this.$router.back()
+      if(this.$route.params.id){
+        this.$router.push("/main")
+      }else{
+        this.$router.go(-1)
+      }
+
     }
   }
 };

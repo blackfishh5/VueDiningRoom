@@ -84,6 +84,7 @@ export default {
     handleToExit() {
       this.axios.get("/api2/users/logout").then(res => {
         if (res.data.state === 0) {
+          window.localStorage.clear()
           this.$router.push("/user/login");
         }
       });

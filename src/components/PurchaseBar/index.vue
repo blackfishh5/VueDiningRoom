@@ -15,7 +15,7 @@
 <script>
 export default {
   name: "PurchaseBar",
-  props: ["price", "username"],
+  props: ["price", "username","userid"],
   data() {
     return {
       openSimple: false
@@ -30,10 +30,40 @@ export default {
         })
         .then(res => {
           if (res.data.state === 0) {
-            // console.log(res.data.msg)
             var money = res.data && res.data.data && res.data.data.money
             this.openSimple = false
             this.$emit('changeMoney',money)
+
+             // 如果支付成功
+            var accMn = this.$store.state.buyfood.accMn,
+                accFn = this.$store.state.buyfood.accFn
+            var length = accMn.length
+            var arrFood = []
+            for(let index = 0; index<length;index++){
+              arrFood.push({
+                foodImg:accMn[index].book_cover,
+                foodName:accMn[index].bookname,
+                num:accFn[index],
+                foodPrice:accFn[index]*accMn[index].price
+              })
+            }
+
+            var orderData = {
+              diningroom:"梅园食堂",
+              food:arrFood,
+              time:new Date(),
+              totalprice:this.$store.state.buyfood.tp,
+              userid:this.userid
+            }
+
+            this.axios.post("/api2/orders/save",orderData).then(res=>{
+              if(res.data.state === 0){
+                console.log(res.data.msg)
+                window.localStorage.clear();
+                this.$router.push("/order")
+              }
+            })
+
           } else if(res.data.state === -2){
             console.log(res.data.msg)
           }

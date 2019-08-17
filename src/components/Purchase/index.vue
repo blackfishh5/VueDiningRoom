@@ -29,7 +29,7 @@
 
       </mu-list>
     </mu-paper>
-    <PurchaseBar :price="$store.state.buyfood.tp" :username="username" @changeMoney="updateMoney"></PurchaseBar>
+    <PurchaseBar :price="$store.state.buyfood.tp" :username="username" :userid="userid" @changeMoney="updateMoney"></PurchaseBar>
   </div>
 </template>
 
@@ -43,7 +43,8 @@ export default {
     return {
       realname: "",
       money: 0,
-      username: ""
+      username: "",
+      userid:""
     };
   },
   created() {
@@ -54,6 +55,7 @@ export default {
         this.realname = data.realname;
         this.username = data.username;
         this.money = data.money;
+        this.userid = data.userid;
       }
     });
   },

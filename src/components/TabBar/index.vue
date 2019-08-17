@@ -17,6 +17,7 @@ export default {
   },
   created(){
     this.bottomNav = this.$route.path
+    console.log(this.$route)
   }
 };
 </script>

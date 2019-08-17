@@ -3,7 +3,15 @@ export default {
   component: () => import('@/View/Food'),
   children: [{
       path: '',
-      component: () => import('@/components/Window')
+      component: () => import('@/components/Window'),
+      children: [{
+        path: ':id',
+        name: 'ooo',
+        component: () => import('@/components/Window/windowfood'),
+      },{
+        path: '/food',
+        redirect:'/food/1'
+      }]
     }, {
       path: 'purchase',
       component: () => import('@/components/Purchase')
@@ -13,7 +21,7 @@ export default {
       component: () => import('@/components/Detail')
     }, {
       path: '/food',
-      redirect: '/food'
+      redirect: '/food/window'
     }
   ]
 }

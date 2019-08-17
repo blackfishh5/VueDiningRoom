@@ -43,20 +43,21 @@ export default {
           username: this.form.username,
           password: this.form.password
         })
-        .then((res) => {
+        .then(res => {
           if (res.data.state === 0) {
             // console.log(res.data.msg);
-            var flag = this.$route.params.type
-            if (flag === 1){
-              // 如果是去结算页面跳过来登录的，必须回到订单
-              this.$router.push('/food')
+            var flag = this.$route.params.type;
+            switch (flag) {
+              case 1:
+              case 2:
+                this.$router.push("/food");
+                break;
+              case 3:
+                this.$router.push("/order");
+                break;
+              default:
+                this.$router.push("/user/detail");
             }
-            else if(flag === 2){
-              this.$router.push('/food/purchase')
-            } else {
-              this.$router.push('/user/detail')
-            }
-           
           }
         });
     },

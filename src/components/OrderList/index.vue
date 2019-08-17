@@ -16,58 +16,27 @@
       </header>
       <mu-card-title title="订单列表" style="border-top:1px solid #aaa; border-bottom:1px solid #aaa;"></mu-card-title>
       <mu-container class="panel-container">
-        <mu-expansion-panel :expand="panel === 'panel1'" @change="toggle('panel1')" class="panel-list">
-          <div slot="header" class="header-title">梅园食堂 <span>2019-08-15</span></div>
+        <mu-expansion-panel :expand="panel === index" @change="toggle(index)" class="panel-list" v-for="(item,index) in orderList" :key="index">
+          <div slot="header" class="header-title">{{item.diningroom}} <span>{{item.time | filterTime}}</span></div>
           <mu-list class="list">
-            <mu-list-item avatar :ripple="false" >
+            <mu-list-item avatar :ripple="false" v-for="(food,i) in item.food" :key="i">
               <mu-list-item-action>
                 <mu-avatar>
-                  <img src="../../assets/grass.jpg">
+                  <img :src="food.foodImg">
                 </mu-avatar>
               </mu-list-item-action>
-              <mu-list-item-title>鸭血粉丝</mu-list-item-title>
+              <mu-list-item-title>{{food.foodName}}</mu-list-item-title>
               <mu-list-item-title style="text-align:center;">
-                X 1
+                X {{food.num}}
               </mu-list-item-title>
               <mu-list-item-action style="font-weight:bolder;color:#000;">
-               ￥20
-              </mu-list-item-action>
-            </mu-list-item>
-            <mu-divider></mu-divider>
-            <mu-list-item avatar button :ripple="false">
-              <mu-list-item-action>
-                <mu-avatar>
-                  <img src="../../assets/grass.jpg">
-                </mu-avatar>
-              </mu-list-item-action>
-              <mu-list-item-title>Mike Li</mu-list-item-title>
-              <mu-list-item-action>
-                <mu-icon value="chat_bubble"></mu-icon>
-              </mu-list-item-action>
-            </mu-list-item>
-            <mu-divider></mu-divider>
-            <mu-list-item avatar button :ripple="false">
-              <mu-list-item-action>
-                <mu-avatar>
-                  <img src="../../assets/grass.jpg">
-                </mu-avatar>
-              </mu-list-item-action>
-              <mu-list-item-title>Mike Li</mu-list-item-title>
-              <mu-list-item-action>
-                <mu-icon value="chat_bubble"></mu-icon>
+                ￥{{food.totalPrice}}
               </mu-list-item-action>
             </mu-list-item>
             <mu-divider></mu-divider>
           </mu-list>
         </mu-expansion-panel>
-        <mu-expansion-panel :expand="panel === 'panel2'" @change="toggle('panel2')" class="panel-list">
-          <div slot="header">Panel 2</div>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-        </mu-expansion-panel>
-        <mu-expansion-panel :expand="panel === 'panel3'" @change="toggle('panel3')" class="panel-list">
-          <div slot="header">Panel 3</div>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse malesuada lacus ex, sit amet blandit leo lobortis eget.
-        </mu-expansion-panel>
+
       </mu-container>
 
     </mu-card>
@@ -81,19 +50,36 @@ export default {
     return {
       username: "",
       realname: "",
+      orderList: [],
+
       isLogin: false,
       panel: ""
     };
   },
   created() {
-
     this.axios.get("/api2/users/getuser").then(res => {
       if (res.data.state === 0) {
-        console.log(res.data.data);
+        // console.log(res.data.data);
         var data = res.data && res.data.data;
         this.isLogin = true;
         this.username = data.username;
         this.realname = data.realname;
+        // this.userid = data.userid
+
+        // 获取订单列表
+        // console.log(typeof data.userid)
+        this.axios
+          .post("/api2/orders/findorders", {
+            userid: data.userid
+          })
+          .then(res => {
+            // console.log(res.data)
+            if (res.data.state === 0) {
+              this.orderList =
+                res.data && res.data.data && res.data.data.orderList;
+              // console.log(this.orderList)
+            }
+          });
       }
     });
   },
@@ -109,11 +95,16 @@ export default {
         return "请前往登陆页面";
       }
       return val;
+    },
+    filterTime(time) {
+      var arrTime = time.split("T");
+      return arrTime[0];
+      // return time.getFullYear() + "年" + (time.getMonth() + 1) +"月"+ time.getDate() +"日"
     }
   },
   methods: {
     handleToLogin() {
-      this.$router.push("/user/login");
+      this.$router.push({ name: "loginPage", params: { type: 3 } });
     },
     toggle(panel) {
       this.panel = panel === this.panel ? "" : panel;
@@ -126,7 +117,7 @@ export default {
 <style scoped>
 #container {
   width: 100%;
-  margin: 56px auto;
+  margin: 60px auto;
   padding: 0;
 }
 
@@ -163,16 +154,17 @@ export default {
 
 .panel-container {
   margin: 20px auto;
+  padding-bottom: 10px;
 }
 .panel-container .panel-list {
   margin-bottom: 10px;
-  padding:0;
+  padding: 0;
 }
 
-.header-title span{
-  margin-left:20px;
+.header-title span {
+  margin-left: 20px;
 }
-.header-list{
-  border-bottom:1px solid red;
+.header-list {
+  border-bottom: 1px solid red;
 }
 </style>
