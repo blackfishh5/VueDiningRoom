@@ -14,6 +14,7 @@ export default {
       }]
     }, {
       path: 'purchase',
+      name: 'purchase',
       component: () => import('@/components/Purchase')
     },
     {

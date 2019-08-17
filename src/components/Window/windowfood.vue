@@ -35,22 +35,31 @@ export default {
       showNum: [] // 展示预定个数
     };
   },
-  activated() {
-    this._datainit(this.$route.params.id)
+  created() {
+    this._datainit(this.$route.params.id);
   },
   computed: {
     id() {
       return this.$route.params.id;
+    },
+    openReflesh() {
+      return this.$store.state.buyfood.openReflesh;
     }
   },
   watch: {
     id: function() {
-      this._datainit(this.$route.params.id)
+      this._datainit(this.$route.params.id);
+    },
+    openReflesh: function() {
+      console.log(this.openReflesh)
+      if (!this.openReflesh) {
+        this._datainit(this.$route.params.id);
+      }
     }
   },
   filters: {
     filterFoodName(val) {
-      return val.slice(0, 6);
+      return val;
     },
     filterNumber(val) {
       // console.log('val'+val)
@@ -62,8 +71,8 @@ export default {
     }
   },
   methods: {
-    _datainit(id){
-      console.log(this.$route.params.id);
+    _datainit(id) {
+      console.log('pppppppppppppppppppppppppppppppppppppppppppppp');
       this.axios.get("https://www.apiopen.top/novelApi").then(res => {
         if (res.data.code === 200) {
           this.menu = res.data.data;
@@ -73,28 +82,31 @@ export default {
           // var foodNum = JSON.parse(window.localStorage.getItem("fn"));
           console.log(window.localStorage.getItem("tp"));
           var tPrice = parseFloat(window.localStorage.getItem("tp"));
-          console.log(typeof tPrice);
+          console.log("tPrice"+tPrice)
           this.totalNum = window.localStorage.getItem("tn");
           if (tPrice) {
             this.totalPrice = tPrice;
             this.carShops = JSON.parse(window.localStorage.getItem("carShops"));
+            console.log("this.carShops");
             console.log(this.carShops);
             for (let i = 0; i < this.menu.length; i++) {
-              let name = this.menu[i].book_cover;
-              let index = this.getcarShopsIndex(name);
+              let name = this.menu[i].bookname;
+              console.log(name);
+              let index = this._getcarShopsIndex(name);
+              console.log("index" + index);
               if (index !== -1) {
                 this.foodNum[i] = this.carShops[index].number; // 用来初始化数据的
               } else {
                 this.foodNum[i] = 0; // 用来初始化数据的
               }
-              console.log(123);
             }
           } else {
+            this.totalPrice = 0
             for (let i = 0; i < this.menu.length; i++) {
               this.foodNum[i] = 0; // 用来初始化数据的
             }
           }
-
+          console.log(JSON.parse(window.localStorage.getItem("carShops")))
           console.log(this.foodNum);
           console.log(this.menu);
         }
@@ -112,25 +124,21 @@ export default {
     handleToAdd(index) {
       // console.log('add'+index)
       var foodMsg = this.menu[index];
-      console.log(typeof foodMsg.price);
       var name = foodMsg.bookname; // 可能出现同名情况，但是真实数据中会根据id
 
       for (var i = 0; i < this.carShops.length; i++) {
         if (this.carShops[i].foodName === name) {
           let number = this.carShops[i].number;
-          number = number >= 5 ? number : ++number;
+          if (number >= 5) {
+            return;
+          }
+          ++number;
           this.carShops[i].number = number;
-          this.foodNum[index] = number;
-          this.totalPrice += parseFloat(foodMsg.price);
-          this.$store.commit("buyfood/SET_PRICE", { tp: this.totalPrice });
-          window.localStorage.setItem("tp", this.totalPrice);
+          this.foodNum.splice(index, 1, number);
           this.totalNum++;
-          this.$store.commit("buyfood/SET_NUM", { tn: this.totalNum });
-          window.localStorage.setItem("tn", this.totalNum);
-          this.$store.commit("buyfood/SET_CARSHOP", {
-            carShops: this.carShops
-          });
-          window.localStorage.setItem("carShop", JSON.stringify(this.carShops));
+          this.totalPrice += parseFloat(foodMsg.price);
+          this._setDataToStorage();
+
           console.log(this.foodNum);
           return;
         }
@@ -145,28 +153,16 @@ export default {
           number: 1
         }
       );
-      this.foodNum[index] = 1;
+      this.foodNum.splice(index, 1, 1);
+      this.totalNum++;
       this.carShops.push(newFood);
       this.totalPrice += parseFloat(foodMsg.price);
-      this.$store.commit("buyfood/SET_PRICE", { tp: this.totalPrice });
-      window.localStorage.setItem("tp", this.totalPrice);
-      this.totalNum++;
-      this.$store.commit("buyfood/SET_NUM", { tn: this.totalNum });
-      window.localStorage.setItem("tn", this.totalNum);
-      this.$store.commit("buyfood/SET_CARSHOP", { carShops: this.carShops });
-      window.localStorage.setItem("carShop", JSON.stringify(this.carShops));
+      this._setDataToStorage();
 
       console.log("carShops");
+      console.log(this.totalPrice)
       console.log(this.carShops);
       console.log(this.foodNum);
-
-      // var num = this.foodNum[index];
-      // if (num >= 9) {
-      //   num = 8;
-      // }
-      // this.foodNum.splice(index, 1, num + 1);
-      // this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
-      // window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
     },
     handleToSubtract(index) {
       // console.log('subtract'+index)
@@ -176,71 +172,44 @@ export default {
       for (var i = 0; i < this.carShops.length; i++) {
         if (this.carShops[i].foodName === name) {
           let number = this.carShops[i].number;
-          number = number <= 0 ? number : --number;
+          // number = number <= 0 ? number : --number;
+          this.carShops[i].number = --number;
+
+          this.totalNum--;
+          this.foodNum.splice(index, 1, number);
+          this.totalPrice -= parseFloat(foodMsg.price);
           if (number <= 0) {
             this.carShops.splice(i, 1);
-          } else {
-            this.carShops[i].number = number;
           }
-          this.foodNum[index] = number;
-          this.totalPrice -= parseFloat(foodMsg.price);
-          this.$store.commit("buyfood/SET_PRICE", { tp: this.totalPrice });
-          window.localStorage.setItem("tp", this.totalPrice);
-          this.totalNum--;
-          this.$store.commit("buyfood/SET_NUM", { tn: this.totalNum });
-          window.localStorage.setItem("tn", this.totalNum);
-          this.$store.commit("buyfood/SET_CARSHOP", {
-            carShops: this.carShops
-          });
-          window.localStorage.setItem("carShop", JSON.stringify(this.carShops));
+          this._setDataToStorage();
 
           console.log("carShops");
+          console.log(this.totalPrice)
           console.log(this.carShops);
           console.log(this.foodNum);
           return;
         }
       }
-
-      // var newFood = Object.assign(
-      //   {},
-      //   {
-      //     id: foodMsg.bid,
-      //     foodName: foodMsg.bookname,
-      //     price: foodMsg.price,
-      //     foodImg: foodMsg.book_cover,
-      //     number: 1
-      //   }
-      // );
-      // this.carShops.push(newFood);
-      // this.totalPrice -= foodMsg.price;
-      // this.$store.commit("buyfood/SET_PRICE", { tp: this.totalPrice });
-      // this.totalNum++;
-      // this.$store.commit("buyfood/SET_NUM", { tn: this.totalNum });
-      // window.localStorage.setItem("tn", this.totalNum);
-      // window.localStorage.setItem("carShop", JSON.stringify(this.carShops));
-
-      // var num = this.foodNum[index];
-      // if (num <= 0) {
-      //   num = 1;
-      // }
-      // this.foodNum.splice(index, 1, num - 1);
-      // this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
-      // window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
-      // this.totalNum--;
-      // this.$store.commit("buyfood/SET_NUM", { tn: this.totalNum });
-      // window.localStorage.setItem("tn", this.totalNum);
     },
 
     // 代码处理封装成函数
-    getcarShopsIndex(name) {
-      console.log(4534);
-      console.log(this.carShops.length);
+    _getcarShopsIndex(name) {
       for (let i = 0; i < this.carShops.length; i++) {
         if (this.carShops[i].foodName === name) {
           return i;
         }
       }
       return -1;
+    },
+    _setDataToStorage() {
+      this.$store.commit("buyfood/SET_PRICE", { tp: this.totalPrice });
+      window.localStorage.setItem("tp", this.totalPrice);
+      this.$store.commit("buyfood/SET_NUM", { tn: this.totalNum });
+      window.localStorage.setItem("tn", this.totalNum);
+      this.$store.commit("buyfood/SET_CARSHOP", {
+        carShops: this.carShops
+      });
+      window.localStorage.setItem("carShops", JSON.stringify(this.carShops));
     }
   }
 };

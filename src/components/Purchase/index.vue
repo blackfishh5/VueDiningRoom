@@ -14,16 +14,16 @@
     <mu-paper :z-depth="1" class="demo-list-wrap">
       <mu-list>
         <mu-sub-header>Today</mu-sub-header>
-        <mu-list-item avatar button :ripple="false" v-for="(food,index) in menu" :key="index">
+        <mu-list-item avatar button :ripple="false" v-for="(food,index) in carShops" :key="index">
           <mu-list-item-action>
             <mu-avatar>
-              <img :src="food.book_cover">
+              <img :src="food.foodImg">
             </mu-avatar>
           </mu-list-item-action>
-          <mu-list-item-title>{{food.bookname |  filterName}}</mu-list-item-title>
-          <mu-list-item-title style="text-align:center;">×{{foodNum[index]}}</mu-list-item-title>
+          <mu-list-item-title>{{food.foodName |  filterName}}</mu-list-item-title>
+          <mu-list-item-title style="text-align:center;">×{{food.number}}</mu-list-item-title>
           <mu-list-item-action>
-            <span>￥{{foodNum[index]*food.price}}</span>
+            <span>￥{{food.number*food.price}}</span>
           </mu-list-item-action>
         </mu-list-item>
 
@@ -65,11 +65,8 @@ export default {
     }
   },
   computed: {
-    foodNum() {
-      return this.$store.state.buyfood.accFn;
-    },
-    menu() {
-      return this.$store.state.buyfood.accMn;
+    carShops(){
+      return this.$store.state.buyfood.carShops
     }
   },
   methods:{

@@ -22,6 +22,9 @@ export default {
     };
   },
   methods: {
+
+
+
     handlePayMoney() {
       this.axios
         .post("/api2/users/consume", {
@@ -35,16 +38,16 @@ export default {
             this.$emit('changeMoney',money)
 
              // 如果支付成功
-            var accMn = this.$store.state.buyfood.accMn,
-                accFn = this.$store.state.buyfood.accFn
-            var length = accMn.length
-            var arrFood = []
+            var carShops = this.$store.state.buyfood.carShops;
+            var length = carShops.length;
+            var arrFood =[]
             for(let index = 0; index<length;index++){
               arrFood.push({
-                foodImg:accMn[index].book_cover,
-                foodName:accMn[index].bookname,
-                num:accFn[index],
-                foodPrice:accFn[index]*accMn[index].price
+                id:carShops[index].id,
+                foodImg:carShops[index].foodImg,
+                foodName:carShops[index].foodName,
+                num:carShops[index].number,
+                foodPrice:carShops[index].number*carShops[index].price
               })
             }
 

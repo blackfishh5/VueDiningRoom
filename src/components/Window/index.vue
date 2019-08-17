@@ -37,9 +37,7 @@
         </mu-paper>
         <div class="right-list" ref="rightwrapper">
           <div>
-            <keep-alive>
               <router-view></router-view>
-            </keep-alive>
           </div>
         </div>
       </div>

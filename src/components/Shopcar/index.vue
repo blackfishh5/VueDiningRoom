@@ -1,40 +1,8 @@
 <template>
   <mu-container class="shopcar">
-
-    <!-- <mu-expand-transition>
-      <mu-bottom-sheet class="sheet" :open.sync="open" :overlay-opacity="0.1">
-        <mu-list>
-          <mu-sub-header>
-            <mu-list>
-              <mu-list-item>
-                <mu-list-item-content>
-                  <mu-list-item-title>已选商品</mu-list-item-title>
-                </mu-list-item-content>
-                <mu-list-item-action>
-                  <mu-button flat @touchstart="handleToClear">
-                    清空
-                    <mu-icon right value="delete"></mu-icon>
-                  </mu-button>
-                </mu-list-item-action>
-              </mu-list-item>
-            </mu-list>
-          </mu-sub-header>
-
-          <mu-list-item v-for="(food,index) in $store.state.buyfood.mn" :key="index" v-if="foodNum[index]">
-            <mu-list-item-title>{{food.bookname}}</mu-list-item-title>
-            <mu-list-item-action class="item">
-              <span>￥{{food.price*foodNum[index] | filterPrice}}</span>
-              <mu-icon value="remove" color="red" @touchstart="handleToSubtract(index)"></mu-icon>
-              <span class="num">{{foodNum[index]}}</span>
-              <mu-icon value="add" color="blue" @touchstart="handleToAdd(index)"></mu-icon>
-            </mu-list-item-action>
-          </mu-list-item>
-        </mu-list>
-      </mu-bottom-sheet>
-    </mu-expand-transition> -->
     <mu-flex class="mu-transition-row">
       <mu-fade-transition>
-        <div class="black-div" v-show="open" ></div>
+        <div class="black-div" v-show="open"></div>
       </mu-fade-transition>
     </mu-flex>
     <mu-flex class="mu-transition-row">
@@ -48,12 +16,12 @@
             </mu-button>
           </mu-appbar>
           <mu-list class="list">
-            <mu-list-item v-for="(food,index) in $store.state.buyfood.mn" :key="index" v-if="foodNum[index]">
-              <mu-list-item-title>{{food.bookname}}</mu-list-item-title>
+            <mu-list-item v-for="(food,index) in $store.state.buyfood.carShops" :key="index">
+              <mu-list-item-title>{{food.foodName}}</mu-list-item-title>
               <mu-list-item-action class="item">
-                <span>￥{{food.price*foodNum[index] | filterPrice}}</span>
+                <span>￥{{food.price*food.number | filterPrice}}</span>
                 <mu-icon value="remove" color="red" @touchstart="handleToSubtract(index)"></mu-icon>
-                <span class="num">{{foodNum[index]}}</span>
+                <span class="num">{{food.number}}</span>
                 <mu-icon value="add" color="blue" @touchstart="handleToAdd(index)"></mu-icon>
               </mu-list-item-action>
             </mu-list-item>
@@ -63,13 +31,13 @@
     </mu-flex>
 
     <mu-appbar style="width: 100%;">
-      <mu-badge v-if="total" :content="total | filterTotal" circle color="secondary" slot="left" style="z-index:999;">
+      <mu-badge v-if="totalNum" :content="totalNum | filterTotal" circle color="secondary" slot="left" style="z-index:999;">
         <mu-button icon @touchstart="handleOpenList">
           <mu-icon value="shopping_cart"></mu-icon>
         </mu-button>
       </mu-badge>
 
-      <span>￥ {{$store.state.buyfood.tp}} </span>
+      <span>￥ {{totalPrice}} </span>
       <mu-button flat slot="right" @touchstart="handleToPurchase">去结算</mu-button>
     </mu-appbar>
   </mu-container>
@@ -81,38 +49,33 @@ export default {
   props: ["username"],
   data() {
     return {
-      open: false
+      open: false,
+      changeObj: {}
     };
   },
-  mounted(){
+  mounted() {
     var that = this; //this的指向问题
     document.addEventListener("touchstart", function(e) {
       if (e.target.className === "black-div") {
         that.open = false; //这里that代表组件，this代表document
+        that.$store.commit("buyfood/SET_OPENREFLESH", {
+          openReflesh: that.open
+        });
       }
     });
   },
-  watch: {
-    foodNum() {
-      var total = 0;
-      for (let i = 0; i < this.foodNum.length; i++) {
-        total += this.foodNum[i] * this.menu[i].price;
-      }
-      this.$store.commit("buyfood/SET_PRICE", { tp: total });
-      window.localStorage.setItem("tp", total);
-    }
-  },
   computed: {
-    menu() {
-      return this.$store.state.buyfood.mn;
+    carShops() {
+      return this.$store.state.buyfood.carShops;
     },
-    foodNum() {
-      return this.$store.state.buyfood.fn;
-    },
-    total() {
+    totalNum() {
       return this.$store.state.buyfood.tn;
+    },
+    totalPrice() {
+      return this.$store.state.buyfood.tp;
     }
   },
+
   filters: {
     filterPrice(val) {
       var val = parseFloat(val);
@@ -122,84 +85,94 @@ export default {
         return val.toFixed(1);
       }
     },
-    filterTotal(val){
-      return val.toString()
+    filterTotal(val) {
+      var val = parseFloat(val);
+      if (!val) {
+        return "";
+      }
+      return val.toString();
     }
   },
   methods: {
     handleOpenList() {
       this.open = !this.open;
-      console.log(this.open)
+      this.$store.commit("buyfood/SET_OPENREFLESH", { openReflesh: this.open });
+      console.log(this.open);
     },
     handleToPurchase() {
       if (this.username) {
         // 如果有用户，则处理点餐情况并传至订单详情页
-        var accFn = [],
-          accMn = [];
-        for (var i = 0; i < this.foodNum.length; i++) {
-          if (this.foodNum[i]) {
-            accFn.push(this.foodNum[i]);
-            accMn.push(this.menu[i]);
-            this.$store.commit("buyfood/SET_BUTFOOD", { accMn, accFn });
-            window.localStorage.setItem("accMn", JSON.stringify(accMn));
-            window.localStorage.setItem("accFn", JSON.stringify(accFn));
-          }
+        if (!this.carShops.length) {
+          console.log("购物车不能为空");
+          return;
         }
-        this.$router.push("/food/purchase");
+        this.$router.push({ name: "purchase" });
       } else {
         this.$router.push({ name: "loginPage", params: { type: 2 } });
       }
     },
-    handleToAdd(index) {
-      // console.log('add'+index)
-      var num = this.foodNum[index];
-      if (num >= 9) {
-        num = 8;
+    handleToAdd(i) {
+      let number = this.carShops[i].number;
+      if (number >= 5) {
+        return;
+      } else {
+        console.log("add");
+        ++number;
+        this.$set(this.carShops[i], "number", number);
+        console.log(this.carShops);
+        this.changeObj = Object.assign({}, this.carShops[i]);
+
+        this.$store.commit("buyfood/SET_CARSHOP", {
+          carShops: this.carShops
+        });
+        window.localStorage.setItem("carShops", JSON.stringify(this.carShops));
       }
-      // this.foodNum.splice(index, 1, num + 1);
-      // this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
-
-      console.log(index);
-      this.foodNum.splice(index, 1, num + 1);
-      this.$nextTick(() => {
-        this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
-        window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
-        this.total++;
-        this.$store.commit("buyfood/SET_NUM", { tn: this.total });
-        window.localStorage.setItem("tn", this.total);
-      });
-
-      // console.log(this.foodNum)
     },
-    handleToSubtract(index) {
-      // console.log('subtract'+index)
-      var num = this.foodNum[index];
-      if (num <= 0) {
-        num = 1;
+    handleToSubtract(i) {
+      let number = this.carShops[i].number;
+      console.log("number");
+      --number;
+      // Vue.set(vm.carShops[i], 'name', '新的值')
+      this.$set(this.carShops[i], "number", number);
+      console.log(this.carShops);
+      this.changeObj = Object.assign({}, this.carShops[i]);
+      if (number <= 0) {
+        this.carShops.splice(i, 1);
       }
-      // this.foodNum.splice(index, 1, num - 1);
-      // this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
 
-      console.log(index);
-      this.foodNum.splice(index, 1, num - 1);
-      this.$nextTick(() => {
-        this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
-        window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
-        this.total--;
-        this.$store.commit("buyfood/SET_NUM", { tn: this.total });
-        window.localStorage.setItem("tn", this.total);
+      this.$store.commit("buyfood/SET_CARSHOP", {
+        carShops: this.carShops
       });
+      window.localStorage.setItem("carShops", JSON.stringify(this.carShops));
     },
     handleToClear() {
-      for (let i = 0; i < this.foodNum.length; i++) {
-        this.foodNum.splice(i, 1, 0);
-      }
-      this.$store.commit("buyfood/SET_FOODNUM", { fn: this.foodNum });
+      this.carShops.splice(0, this.carShops.length);
+      console.log(this.carShops)
+      this.changeObj = {}
+      this.$store.commit("buyfood/SET_CARSHOP", {
+        carShops: this.carShops
+      });
+      window.localStorage.setItem("carShops", JSON.stringify(this.carShops));
       this.$store.commit("buyfood/SET_PRICE", { tp: 0 });
-      window.localStorage.setItem("fn", JSON.stringify(this.foodNum));
       window.localStorage.setItem("tp", 0);
       this.$store.commit("buyfood/SET_NUM", { tn: 0 });
       window.localStorage.setItem("tn", 0);
+    }
+  },
+  watch: {
+    changeObj() {
+      console.log(123312321321);
+      let tPrice = 0,
+        tNum = 0;
+      for (let item of this.carShops) {
+        tNum += item.number;
+        tPrice += item.price * item.number;
+      }
+       window.localStorage.clear()
+      this.$store.commit("buyfood/SET_PRICE", { tp: tPrice });
+      window.localStorage.setItem("tp", tPrice);
+      this.$store.commit("buyfood/SET_NUM", { tn: tNum });
+      window.localStorage.setItem("tn", tNum);
     }
   }
 };
@@ -215,16 +188,16 @@ export default {
 }
 
 /* 折叠框 */
-.mu-transition-row{
-  width:100%;
+.mu-transition-row {
+  width: 100%;
 }
-.mu-paper{
-  width:100%;
+.mu-paper {
+  width: 100%;
 }
-.black-div{
-  width:100%;
-  height:600px;
-  background: rgba(0,0,0,0.1);
+.black-div {
+  width: 100%;
+  height: 600px;
+  background: rgba(0, 0, 0, 0.1);
 }
 
 span {

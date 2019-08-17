@@ -30,7 +30,7 @@
                 X {{food.num}}
               </mu-list-item-title>
               <mu-list-item-action style="font-weight:bolder;color:#000;">
-                ￥{{food.totalPrice}}
+                ￥{{food.foodPrice}}
               </mu-list-item-action>
             </mu-list-item>
             <mu-divider></mu-divider>
