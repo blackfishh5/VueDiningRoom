@@ -2,18 +2,18 @@
   <div id="container">
     <mu-paper :z-depth="6">
       <mu-list textline="two-line">
-        <mu-list-item class="list-item" v-for="(book,index) in menu" :key="index">
-          <mu-list-item-action class="img-item" @touchstart="handleToFoodDetail(book.bookname)">
-            <img :src="book.book_cover">
+        <mu-list-item class="list-item" v-for="(food,index) in menu" :key="index" button @click="handleToFoodDetail(food.foodId)">
+          <mu-list-item-action class="img-item" >
+            <img :src="'http://47.111.108.210:8080/restaurant/'+food.pictureUrl">
           </mu-list-item-action>
           <div style="line-height:28px;">
-            <p>{{book.bookname | filterFoodName}}</p>
-            <p class="money">￥ {{book.price}}</p>
+            <p>{{food.name | filterFoodName}}</p>
+            <p class="money">￥ {{food.price}}</p>
           </div>
           <mu-list-item-action class="item">
-            <mu-icon value="remove" color="red" @touchstart="handleToSubtract(index)"></mu-icon>
+            <mu-icon value="remove" color="red" @touchstart.stop.prevent="handleToSubtract(index)"></mu-icon>
             <span class="number-show">{{foodNum[index]}}</span>
-            <mu-icon value="add" color="blue" @touchstart="handleToAdd(index)"></mu-icon>
+            <mu-icon value="add" color="blue" @touchstart.stop.prevent="handleToAdd(index)"></mu-icon>
           </mu-list-item-action>
         </mu-list-item>
       </mu-list>
@@ -27,6 +27,7 @@ export default {
   name: "windowfood",
   data() {
     return {
+      isLoading:true,
       totalNum: 0, // 预定总个数
       totalPrice: 0, // 总价格
       menu: [], // 某个窗口下对应的菜单
@@ -36,11 +37,11 @@ export default {
     };
   },
   created() {
-    this._datainit(this.$route.params.id);
+    this._datainit(this.$route.params.windowsId);
   },
   computed: {
     id() {
-      return this.$route.params.id;
+      return this.$route.params.windowsId;
     },
     openReflesh() {
       return this.$store.state.buyfood.openReflesh;
@@ -48,12 +49,12 @@ export default {
   },
   watch: {
     id: function() {
-      this._datainit(this.$route.params.id);
+      this._datainit(this.$route.params.windowsId);
     },
     openReflesh: function() {
       console.log(this.openReflesh)
       if (!this.openReflesh) {
-        this._datainit(this.$route.params.id);
+        this._datainit(this.$route.params.windowsId);
       }
     }
   },
@@ -72,9 +73,9 @@ export default {
   },
   methods: {
     _datainit(id) {
-      console.log('pppppppppppppppppppppppppppppppppppppppppppppp');
-      this.axios.get("https://www.apiopen.top/novelApi").then(res => {
-        if (res.data.code === 200) {
+      // console.log('pppppppppppppppppppppppppppppppppppppppppppppp');
+      this.axios.get("/api/restaurant/restaurant/"+this.$route.params.restaurantId+"/windows/"+this.$route.params.windowsId+"/food").then(res => {
+        if (res.data.success) {
           this.menu = res.data.data;
 
           // 在初始化的时候记得好好处理，每一个菜单都要置数字
@@ -90,9 +91,9 @@ export default {
             console.log("this.carShops");
             console.log(this.carShops);
             for (let i = 0; i < this.menu.length; i++) {
-              let name = this.menu[i].bookname;
-              console.log(name);
-              let index = this._getcarShopsIndex(name);
+              let foodId = this.menu[i].foodId;
+              console.log(foodId);
+              let index = this._getcarShopsIndex(foodId);
               console.log("index" + index);
               if (index !== -1) {
                 this.foodNum[i] = this.carShops[index].number; // 用来初始化数据的
@@ -106,6 +107,7 @@ export default {
               this.foodNum[i] = 0; // 用来初始化数据的
             }
           }
+          this.$emit("getLoading",false)
           console.log(JSON.parse(window.localStorage.getItem("carShops")))
           console.log(this.foodNum);
           console.log(this.menu);
@@ -113,9 +115,12 @@ export default {
       });
     },
 
-    handleToFoodDetail(name) {
-      // console.log(12332112312)
-      this.$router.push(`/food/detail/${name}`);
+    handleToFoodDetail(id) {
+      var restaurantId = this.$route.params.restaurantId,
+          windowsId = this.$route.params.windowsId,
+          foodId = id
+      // this.$router.push({name:'foodDetail',params:{restaurantId,windowsId,foodId}})
+      this.$router.push(`/detail/${restaurantId}/${windowsId}/${foodId}`)
     },
 
     /**
@@ -124,10 +129,10 @@ export default {
     handleToAdd(index) {
       // console.log('add'+index)
       var foodMsg = this.menu[index];
-      var name = foodMsg.bookname; // 可能出现同名情况，但是真实数据中会根据id
+      var foodId = foodMsg.foodId; // 可能出现同名情况，但是真实数据中会根据id
 
       for (var i = 0; i < this.carShops.length; i++) {
-        if (this.carShops[i].foodName === name) {
+        if (this.carShops[i].id === foodId) {
           let number = this.carShops[i].number;
           if (number >= 5) {
             return;
@@ -146,10 +151,10 @@ export default {
       var newFood = Object.assign(
         {},
         {
-          id: foodMsg.bid,
-          foodName: foodMsg.bookname,
+          id: foodMsg.foodId,
+          foodName: foodMsg.name,
           price: foodMsg.price,
-          foodImg: foodMsg.book_cover,
+          foodImg: "http://47.111.108.210:8080/restaurant/"+foodMsg.pictureUrl,
           number: 1
         }
       );
@@ -167,10 +172,10 @@ export default {
     handleToSubtract(index) {
       // console.log('subtract'+index)
       var foodMsg = this.menu[index];
-      var name = foodMsg.bookname; // 可能出现同名情况，但是真实数据中会根据id
+      var foodId = foodMsg.foodId; // 可能出现同名情况，但是真实数据中会根据id
 
       for (var i = 0; i < this.carShops.length; i++) {
-        if (this.carShops[i].foodName === name) {
+        if (this.carShops[i].id === foodId) {
           let number = this.carShops[i].number;
           // number = number <= 0 ? number : --number;
           this.carShops[i].number = --number;
@@ -193,9 +198,9 @@ export default {
     },
 
     // 代码处理封装成函数
-    _getcarShopsIndex(name) {
+    _getcarShopsIndex(id) {
       for (let i = 0; i < this.carShops.length; i++) {
-        if (this.carShops[i].foodName === name) {
+        if (this.carShops[i].id === id) {
           return i;
         }
       }

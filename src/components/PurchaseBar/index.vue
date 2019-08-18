@@ -23,8 +23,6 @@ export default {
   },
   methods: {
 
-
-
     handlePayMoney() {
       this.axios
         .post("/api2/users/consume", {
@@ -38,6 +36,7 @@ export default {
             this.$emit('changeMoney',money)
 
              // 如果支付成功
+             this.$toast.success(res.data.msg)
             var carShops = this.$store.state.buyfood.carShops;
             var length = carShops.length;
             var arrFood =[]
@@ -63,12 +62,13 @@ export default {
               if(res.data.state === 0){
                 console.log(res.data.msg)
                 window.localStorage.clear();
+                this.$store.dispatch("buyfood/clearData");
                 this.$router.push("/order")
               }
             })
 
-          } else if(res.data.state === -2){
-            console.log(res.data.msg)
+          } else{
+            this.$toast.error(res.data.msg)
           }
         });
     }

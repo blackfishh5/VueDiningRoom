@@ -1,16 +1,17 @@
 export default {
-  path: '/food',
+  path: '/food/:restaurantId',
+  name: 'food',
   component: () => import('@/View/Food'),
   children: [{
-      path: '',
+      path: 'window',
       component: () => import('@/components/Window'),
       children: [{
-        path: ':id',
+        path: ':windowsId',
         name: 'ooo',
         component: () => import('@/components/Window/windowfood'),
       },{
-        path: '/food',
-        redirect:'/food/1'
+        path:'/food/:restaurantId',
+        redirect:'/food/:restaurantId/window/1'
       }]
     }, {
       path: 'purchase',
@@ -18,11 +19,8 @@ export default {
       component: () => import('@/components/Purchase')
     },
     {
-      path: 'detail/:name',
-      component: () => import('@/components/Detail')
-    }, {
       path: '/food',
-      redirect: '/food/window'
+      redirect: '/food/1/window/1'
     }
   ]
 }

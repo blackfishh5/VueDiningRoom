@@ -1,5 +1,6 @@
 <template>
   <mu-container id="container" class="container" ref="container">
+    <!-- <LoadingPage  v-if="isLoading"></LoadingPage> -->
     <mu-card style="width: 100%; max-width: 375px; margin: 0 auto;" :raised="false">
       <header class="user-header">
         <div class="user-avator">
@@ -21,23 +22,14 @@
       <div class="list-container">
         <mu-paper class="left-list" ref="leftwrapper">
           <mu-list :value="pageid">
-            <mu-list-item @touchstart="activeBtn = 1" :value="1" button :ripple="false" :to="{name:'ooo',params:{id:1}}">
-              <mu-list-item-title class="list-title">All mail</mu-list-item-title>
-            </mu-list-item>
-            <mu-list-item @touchstart="activeBtn = 2" :value="2" button :ripple="false" :to="{name:'ooo',params:{id:2}}">
-              <mu-list-item-title class="list-title">Trash</mu-list-item-title>
-            </mu-list-item>
-            <mu-list-item @touchstart="activeBtn = 3" :value="3" button :ripple="false" :to="{name:'ooo',params:{id:3}}">
-              <mu-list-item-title class="list-title">Spam</mu-list-item-title>
-            </mu-list-item>
-            <mu-list-item @touchstart="activeBtn = 4" :value="4" button :ripple="false" :to="{name:'ooo',params:{id:4}}">
-              <mu-list-item-title class="list-title">Follow up</mu-list-item-title>
+            <mu-list-item v-for="(item,index) in listNav" :key="index" @tap="activeBtn = (index+1)" :value="index+1" button :to="{name:'ooo',params:{windowsId:index+1}}">
+              <mu-list-item-title class="list-title">{{item.name}}</mu-list-item-title>
             </mu-list-item>
           </mu-list>
         </mu-paper>
         <div class="right-list" ref="rightwrapper">
           <div>
-              <router-view></router-view>
+            <router-view></router-view>
           </div>
         </div>
       </div>
@@ -49,20 +41,22 @@
 <script>
 import BScroll from "better-scroll";
 import Shopcar from "@/components/Shopcar";
-import { type } from "os";
 
 export default {
   name: "Window",
   components: { Shopcar },
   data() {
     return {
+      isLoading: true,
       isLogin: false,
       realname: "",
       username: "",
       money: 0,
 
+      foodListBoolean:true, // 将来用来解决食品展示框的布尔值
+      foodList: [], // 将来用来解决食品展示框
       activeBtn: 1,
-      // buttonNav: 1,
+      listNav: [],
       flag: false // 用于滑动解锁 和 加锁
     };
   },
@@ -75,6 +69,7 @@ export default {
     }
   },
   created() {
+    // var timer = setTimeout(() => {
     this.axios.get("/api2/users/getuser").then(res => {
       if (res.data.state === 0) {
         // console.log(res.data.data);
@@ -84,35 +79,51 @@ export default {
         this.username = data.username;
         this.money = data.money;
       }
+      this.axios
+        .get(
+          "/api/restaurant/restaurant/" +
+            this.$route.params.restaurantId +
+            "/windows"
+        )
+        .then(res => {
+          if (res.data.success) {
+            console.log(res.data.data);
+            this.listNav = res.data.data;
+          }
+        });
     });
+    // }, 500);
   },
   mounted() {
-    this.contScroll = this.leftScroll = new BScroll(this.$refs.container, {
+    // var timer = setTimeout(() => {
+    this.contScroll = new BScroll(this.$refs.container, {
       tap: true,
-      click: true,
+      // click: true,
       probeType: 2,
-      bounce: {
-        bottom: false
-      }
+      bounce: false
     });
     this.leftScroll = new BScroll(this.$refs.leftwrapper, {
       tap: true,
-      click: true,
+      // click: true,
+      bounce: false,
       probeType: 1
     });
     this.rightScroll = new BScroll(this.$refs.rightwrapper, {
       tap: true,
-      click: true,
-      probeType: 2,
+      // click: true,
+      probeType: 1,
       bounce: false
       // preventDefault:false
     });
 
     this.handleScroll();
+
+    this.isLoading = false;
+    // }, 1000);
   },
   computed: {
     pageid() {
-      return this.$route.params.id;
+      return this.$route.params.windowsId;
     }
   },
   methods: {
@@ -164,10 +175,6 @@ export default {
           this.flag = true;
         }
       });
-    },
-
-    onclickFN() {
-      console.log(123);
     }
   }
 };
@@ -176,11 +183,16 @@ export default {
 <style scoped>
 #container {
   width: 100%;
-  height: 563px;
+  height: 0;
   margin: 56px auto;
   padding: 0;
 }
-
+.loading-page {
+  position: absolute;
+  top: 0;
+  background: #fff;
+  z-index: 99;
+}
 /* 用户信息头部 */
 .user-header {
   display: flex;
@@ -223,16 +235,19 @@ export default {
 
 .left-list {
   width: 100px;
+  height: 0;
   max-width: 120px;
   height: 100%;
 }
-
 .list-title {
   font-size: 12px;
 }
 .right-list {
   flex: 1;
-  height: 100%;
+  height: 0;
+}
+.right-list div {
+  width: 100%;
 }
 
 .btn {

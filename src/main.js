@@ -9,9 +9,15 @@ import MuseUI from 'muse-ui'
 import 'muse-ui/dist/muse-ui.css'
 Vue.use(MuseUI)
 
+import Toast from 'muse-ui-toast';
+Vue.use(Toast);
+
 import 'muse-ui-loading/dist/muse-ui-loading.css'; // load css
 import Loading from 'muse-ui-loading';
 Vue.use(Loading);
+
+import LoadingPage from './components/BaseComponent/LoadingPage.vue'
+Vue.component('LoadingPage',LoadingPage);
 
 import axios from 'axios'
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';

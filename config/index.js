@@ -15,20 +15,21 @@ module.exports = {
         target: 'http://localhost:3000', // 跨域地址
         changeOrigin: true, // 是否跨域
         secure: false, // 是否使用https
-        pathRewrith: {
+        pathRewrite: {
           '^/api2': '/api2'
           // 这里裂解为使用/api代替target里面的地址'http://39.97.33.178'，后面的组件直接用api代替
         }
       },
       '/api':{
-        target: 'http://39.97.33.178', // 跨域地址
+        target: 'http://47.111.108.210:8080', // 跨域地址
         changeOrigin: true, // 是否跨域
         secure: false, // 是否使用https
-        pathRewrith: {
-          '^/api': '/api'
+        pathRewrite: {
+          '^/api': ''
           // 这里裂解为使用/api代替target里面的地址'http://39.97.33.178'，后面的组件直接用api代替
         }
       }
+      
     },
 
     // Various Dev Server settings

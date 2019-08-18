@@ -12,7 +12,7 @@
           <mu-text-field v-model.trim="form.password" :action-icon="visibility ? 'visibility_off' : 'visibility'" :action-click="() => (visibility = !visibility)" :type="visibility ? 'text' : 'password'"></mu-text-field><br />
         </mu-form-item>
         <mu-form-item>
-          <mu-button color="primary" @click="handleSubmit">提交</mu-button>
+          <mu-button color="primary" @click="handleSubmit" v-loading="loadingBtn" data-mu-loading-size="24">提交</mu-button>
           <mu-button @touchstart="handleClear">重置</mu-button>
         </mu-form-item>
       </mu-form>
@@ -30,7 +30,8 @@ export default {
         password: ""
       },
       labelPosition: "top",
-      visibility: false
+      visibility: false,
+      loadingBtn:false
     };
   },
   methods: {
@@ -38,6 +39,7 @@ export default {
       // if( !this.form.username || !this.form.password ){
       //   console.log("wgnmd")
       // }
+      this.loadingBtn = true
       this.axios
         .post("/api2/users/login", {
           username: this.form.username,
@@ -46,6 +48,7 @@ export default {
         .then(res => {
           if (res.data.state === 0) {
             // console.log(res.data.msg);
+            this.$toast.success(res.data.msg)
             var flag = this.$route.params.type;
             switch (flag) {
               case 1:
@@ -58,7 +61,10 @@ export default {
               default:
                 this.$router.push("/user/detail");
             }
+          }else{
+            this.$toast.error(res.data.msg)
           }
+          this.loadingBtn = false
         });
     },
     handleClear() {

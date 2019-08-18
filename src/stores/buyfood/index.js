@@ -6,7 +6,9 @@ const state = {
   openReflesh: false
 };
 const actions = {
-
+  clearData(context){
+    context.commit('CLEAR_DATA');
+  }
 };
 const mutations = {
   SET_PRICE: (state, payload) => {
@@ -20,6 +22,12 @@ const mutations = {
   },
   SET_OPENREFLESH: (state,payload) =>{
     state.openReflesh = payload.openReflesh
+  },
+  CLEAR_DATA:(state) =>{
+    state.tp = 0;
+    state.tn = 0;
+    state.carShops = [];
+    state.openReflesh = false;
   }
 };
 export default {

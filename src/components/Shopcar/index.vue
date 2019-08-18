@@ -20,9 +20,9 @@
               <mu-list-item-title>{{food.foodName}}</mu-list-item-title>
               <mu-list-item-action class="item">
                 <span>￥{{food.price*food.number | filterPrice}}</span>
-                <mu-icon value="remove" color="red" @touchstart="handleToSubtract(index)"></mu-icon>
+                <mu-icon value="remove" color="red" @touchstart.stop="handleToSubtract(index)"></mu-icon>
                 <span class="num">{{food.number}}</span>
-                <mu-icon value="add" color="blue" @touchstart="handleToAdd(index)"></mu-icon>
+                <mu-icon value="add" color="blue" @touchstart.stop="handleToAdd(index)"></mu-icon>
               </mu-list-item-action>
             </mu-list-item>
           </mu-list>
@@ -72,6 +72,8 @@ export default {
       return this.$store.state.buyfood.tn;
     },
     totalPrice() {
+      console.log('this.$store.state.buyfood.tp')
+      console.log(this.$store.state.buyfood.tp)
       return this.$store.state.buyfood.tp;
     }
   },
@@ -103,7 +105,7 @@ export default {
       if (this.username) {
         // 如果有用户，则处理点餐情况并传至订单详情页
         if (!this.carShops.length) {
-          console.log("购物车不能为空");
+          this.$toast.warning('购物车不能为空')
           return;
         }
         this.$router.push({ name: "purchase" });
@@ -168,7 +170,7 @@ export default {
         tNum += item.number;
         tPrice += item.price * item.number;
       }
-       window.localStorage.clear()
+      window.localStorage.clear()
       this.$store.commit("buyfood/SET_PRICE", { tp: tPrice });
       window.localStorage.setItem("tp", tPrice);
       this.$store.commit("buyfood/SET_NUM", { tn: tNum });

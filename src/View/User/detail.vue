@@ -1,6 +1,7 @@
 <template>
   <mu-container id="container">
-    <mu-card style="width: 95%; max-width: 375px; margin: 0 auto;" raised>
+    <LoadingPage v-if="isLoading"></LoadingPage>
+    <mu-card v-else style="width: 95%; max-width: 375px; margin: 0 auto;" raised>
       <header class="user-header">
         <div class="user-avator">
           <img src="../../assets/grass.jpg" alt="">
@@ -17,7 +18,7 @@
         您的余额：￥ {{money}}
       </mu-appbar>
       <mu-tabs :value.sync="active3" class="tab-btn" color="#fff">
-        <mu-tab >
+        <mu-tab>
           <mu-icon value="phone" color="#666"></mu-icon>
           <p class="btn-name">充值</p>
         </mu-tab>
@@ -32,7 +33,7 @@
       </mu-tabs>
       <div class="demo-text" v-if="active3 === 0">
         <mu-form ref="form" :model="validateForm" class="mu-demo-form">
-          <mu-form-item label="充值金额" help-text="充值金额不得超过500元" prop="recharge" >
+          <mu-form-item label="充值金额" help-text="充值金额不得超过500元" prop="recharge">
             <mu-text-field v-model.number="validateForm.recharge" prop="recharge"></mu-text-field>
           </mu-form-item>
           <!-- <mu-form-item label="密码" prop="password" :rules="passwordRules">
@@ -70,21 +71,22 @@ export default {
       //   { validate: (val) => val <= 0, message: '充值金额必须大于0'},
       //   { validate: (val) => val > 500, message: '充值金额必须小于500'}
       // ],
-      validateForm:{
+      isLoading: true,
+      validateForm: {
         recharge: ""
       },
       username: "",
       realname: "",
       money: 0,
       active3: 0,
-      loadingBtn:false
+      loadingBtn: false
     };
   },
   methods: {
     handleToExit() {
       this.axios.get("/api2/users/logout").then(res => {
         if (res.data.state === 0) {
-          window.localStorage.clear()
+          window.localStorage.clear();
           this.$router.push("/user/login");
         }
       });
@@ -92,19 +94,23 @@ export default {
     handleRecharge() {
       // console.log(typeof this.validateForm.recharge)
       // console.log(this.validateForm.recharge)
-      if(this.validateForm.recharge <= 0 || this.validateForm.recharge > 500 || this.validateForm.recharge === ""){
-        return
+      if (
+        this.validateForm.recharge <= 0 ||
+        this.validateForm.recharge > 500 ||
+        this.validateForm.recharge === ""
+      ) {
+        return;
       }
-      this.loadingBtn = true
+      this.loadingBtn = true;
       this.axios
         .post("/api2/users/recharge", {
           username: this.username,
           rechargemoney: this.validateForm.recharge
         })
-        .then((res) => {
+        .then(res => {
           if (res.data.state === 0) {
-            this.money = res.data.data.money
-            this.loadingBtn = false
+            this.money = res.data.data.money;
+            this.loadingBtn = false;
           }
         });
     }
@@ -116,19 +122,23 @@ export default {
       var state = res.data.state;
       console.log(state);
       if (state === 0) {
-        var data = res.data.data
+        var data = res.data.data;
         next(vm => {
           vm.username = data.username;
           vm.realname = data.realname;
-          vm.money = data.money
+          vm.money = data.money;
           // vm.$store.commit('user/SET_USER',{
           //   username:data.username,
           //   realname:data.realname,
           //   money:data.money
           // })
+
+          var timer = setTimeout(() => {
+            vm.isLoading = false;
+          }, 500);
         });
       } else {
-        next({name:'loginPage',params:{ type: 0}});
+        next({ name: "loginPage", params: { type: 0 } });
       }
     });
   }
@@ -139,6 +149,7 @@ export default {
 <style  scoped>
 #container {
   width: 100%;
+  height: 563px;
   margin-top: 60px;
   padding: 0;
 }

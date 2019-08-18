@@ -22,7 +22,7 @@ export default {
   },
   methods:{
     handleBack(){
-      if(this.$route.params.id){
+      if(this.$route.params.windowsId){
         this.$router.push("/main")
       }else{
         this.$router.go(-1)

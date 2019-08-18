@@ -1,7 +1,8 @@
 
 <template>
   <mu-container id="container">
-    <mu-card style="width: 95%; max-width: 375px; margin: 0 auto;" raised>
+    <LoadingPage v-if="isLoading"></LoadingPage>
+    <mu-card v-else style="width: 95%; max-width: 375px; margin: 0 auto;" raised>
       <header class="user-header">
         <div class="user-avator">
           <img src="../../assets/grass.jpg" alt="">
@@ -48,6 +49,7 @@ export default {
   name: "OrderList",
   data() {
     return {
+      isLoading:true,
       username: "",
       realname: "",
       orderList: [],
@@ -83,6 +85,11 @@ export default {
       }
     });
   },
+  mounted(){
+    var timer = setTimeout(()=>{
+      this.isLoading = false;
+    },500)
+  },
   filters: {
     filterName(val) {
       if (!val) {
@@ -117,6 +124,7 @@ export default {
 <style scoped>
 #container {
   width: 100%;
+  height: 563px;
   margin: 60px auto;
   padding: 0;
 }
